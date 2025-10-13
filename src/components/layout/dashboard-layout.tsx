@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { MobileFooterNav } from './mobile-footer-nav';
 import { ProfileDropdown } from '@/components/ui/profile-dropdown';
+import { Chatbot } from '@/components/ui/chatbot';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -175,6 +176,9 @@ export function DashboardLayout({ children, sidebar }: DashboardLayoutProps) {
           <MobileFooterNav />
           </div>
         </div>
+        
+        {/* Floating Chatbot */}
+        <Chatbot />
       </div>
     </SidebarContext.Provider>
   );
