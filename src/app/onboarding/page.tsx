@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
@@ -213,6 +214,17 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background-secondary to-background-tertiary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Container className="max-w-2xl">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <Image 
+            src="/Logo.png" 
+            alt="EduPilot Logo" 
+            width={48} 
+            height={48}
+            className="w-12 h-12"
+          />
+        </div>
+        
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">

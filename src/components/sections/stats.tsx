@@ -3,11 +3,17 @@
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { Heading } from '@/components/ui/heading';
-import { FEATURES } from '@/lib/constants';
 
-export function Features() {
+export function Stats() {
+  const stats = [
+    { number: '10K+', label: 'Active Students', icon: '👨‍🎓' },
+    { number: '500+', label: 'Educators', icon: '👩‍🏫' },
+    { number: '95%', label: 'Success Rate', icon: '📈' },
+    { number: '24/7', label: 'AI Support', icon: '🤖' },
+  ];
+
   return (
-    <Section id="features" className="bg-background relative overflow-hidden">
+    <Section id="stats" className="bg-background relative overflow-hidden">
       {/* Sophisticated Background Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
       <div className="absolute inset-0 bg-gradient-to-b from-green-500/[0.02] via-transparent to-transparent" />
@@ -20,27 +26,27 @@ export function Features() {
           <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full border border-green-500/20 bg-green-500/5 backdrop-blur-sm">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             <span className="text-sm font-medium text-green-700 dark:text-green-400 tracking-wide">
-              FEATURES
+              STATISTICS
             </span>
           </div>
           
           <Heading level={2} className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-foreground tracking-tight leading-[1.1]">
-            Enterprise-Grade Features
+            Trusted by Thousands
             <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-green-600 dark:from-green-400 dark:via-emerald-400 dark:to-green-400">
-              Built for Excellence
+              Making a Real Impact
             </span>
           </Heading>
           
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Discover the comprehensive suite of tools designed to transform educational experiences and drive measurable results.
+            Join a growing community of educators and students who are transforming education with EduPilot.
           </p>
         </div>
         
-        {/* Premium Feature Cards Grid */}
+        {/* Premium Stats Cards Grid */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {FEATURES.map((feature, index) => (
+          {stats.map((stat, index) => (
             <div
-              key={feature.id}
+              key={index}
               className="group relative"
               style={{
                 animation: 'fadeInUp 0.6s ease-out forwards',
@@ -57,26 +63,26 @@ export function Features() {
                 <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500 -z-10" />
                 
                 {/* Content */}
-                <div className="relative z-10">
+                <div className="relative z-10 text-center">
                   {/* Icon Container */}
-                  <div className="mb-6 relative">
+                  <div className="mb-6 relative flex justify-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/10 via-emerald-500/5 to-green-500/10 group-hover:from-green-500/20 group-hover:via-emerald-500/10 group-hover:to-green-500/20 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 border border-green-500/10">
                       <span className="text-3xl filter group-hover:brightness-110 transition-all duration-300">
-                        {feature.icon}
+                        {stat.icon}
                       </span>
                     </div>
                     {/* Decorative dot */}
                     <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-500/30 group-hover:bg-green-500/60 transition-colors duration-300" />
                   </div>
                   
-                  {/* Title */}
-                  <h3 className="text-xl font-bold mb-3 text-card-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300 leading-tight">
-                    {feature.title}
-                  </h3>
+                  {/* Number */}
+                  <div className="text-4xl md:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-br from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 group-hover:from-green-500 group-hover:to-emerald-500 transition-all duration-300">
+                    {stat.number}
+                  </div>
                   
-                  {/* Description */}
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {feature.description}
+                  {/* Label */}
+                  <p className="text-sm md:text-base leading-relaxed text-muted-foreground font-medium">
+                    {stat.label}
                   </p>
                 </div>
                 
@@ -89,7 +95,6 @@ export function Features() {
             </div>
           ))}
         </div>
-        
       </Container>
       
       <style jsx>{`
@@ -107,3 +112,4 @@ export function Features() {
     </Section>
   );
 }
+

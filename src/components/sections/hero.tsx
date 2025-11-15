@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
@@ -65,7 +66,21 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background-secondary to-background">
+    <section className="relative min-h-screen overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <Image
+          src="/Hero.jpg"
+          alt="Hero Background"
+          fill
+          className="object-cover"
+          priority
+          quality={90}
+        />
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+      </div>
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         {/* Gradient Orbs */}
@@ -113,41 +128,52 @@ export function Hero() {
       </div>
 
       <Container className="relative z-10 flex items-center justify-center min-h-screen py-20">
-        <div className="text-center max-w-5xl">
+        <div className="text-center max-w-5xl mx-auto px-4">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <Image 
+              src="/Logo.png" 
+              alt="EduPilot Logo" 
+              width={64} 
+              height={64}
+              className="w-16 h-16 drop-shadow-2xl"
+            />
+          </div>
+
           {/* Animated Badge */}
-          <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-card/20 backdrop-blur-md border border-green-500/30 shadow-lg">
+          <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-white/10 backdrop-blur-md border border-green-500/30 shadow-lg">
             <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
-            <span className="text-sm font-medium text-green-600 dark:text-green-400">
+            <span className="text-sm font-medium text-white">
               🚀 Now with AI-Powered Learning
             </span>
           </div>
 
           {/* Main Heading with Gradient Animation */}
           <Heading level={1} className="mb-8 text-5xl sm:text-6xl lg:text-7xl font-bold">
-            <span className="block text-foreground mb-2">
+            <span className="block text-white mb-2 drop-shadow-2xl">
               Transform Education
             </span>
-            <span className="block bg-gradient-to-r from-green-600 via-green-500 to-green-600 dark:from-green-400 dark:via-green-500 dark:to-green-400 bg-clip-text text-transparent animate-gradient">
+            <span className="block bg-gradient-to-r from-green-400 via-green-300 to-green-400 bg-clip-text text-transparent animate-gradient drop-shadow-2xl">
               with AI-Powered Learning
             </span>
           </Heading>
           
           {/* Animated Description */}
           <div className="mb-12 max-w-3xl mx-auto">
-            <p className="text-xl sm:text-2xl text-muted-foreground leading-relaxed animate-fade-in-up">
+            <p className="text-xl sm:text-2xl text-white/95 leading-relaxed animate-fade-in-up drop-shadow-xl">
               EduPilot revolutionizes education by providing{' '}
-              <span className="text-green-600 dark:text-green-400 font-semibold">personalized learning experiences</span>,{' '}
-              <span className="text-green-500 dark:text-green-500 font-semibold">real-time analytics</span>, and{' '}
-              <span className="text-green-600 dark:text-green-400 font-semibold">collaborative tools</span>{' '}
+              <span className="text-green-300 font-semibold">personalized learning experiences</span>,{' '}
+              <span className="text-green-400 font-semibold">real-time analytics</span>, and{' '}
+              <span className="text-green-300 font-semibold">collaborative tools</span>{' '}
               for students and teachers.
             </p>
           </div>
           
           {/* Interactive CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button 
               size="lg" 
-              className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 dark:from-green-600 dark:to-green-700 dark:hover:from-green-700 dark:hover:to-green-800 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer backdrop-blur-sm"
+              className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-2xl hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105"
             >
               <span className="relative z-10 flex items-center">
                 Get Started Free
@@ -155,13 +181,13 @@ export function Hero() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-green-500/20 dark:from-green-500/20 dark:to-green-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Button>
             
             <Button 
               variant="outline" 
               size="lg" 
-              className="group relative overflow-hidden border-2 border-green-500/50 hover:border-green-400/70 dark:border-green-500/50 dark:hover:border-green-400/70 bg-card/20 backdrop-blur-md px-8 py-4 text-lg font-semibold rounded-xl hover:bg-card/30 transition-all duration-300 transform hover:scale-105 text-green-600 dark:text-green-400 cursor-pointer shadow-lg"
+              className="group relative overflow-hidden border-2 border-white/40 hover:border-white/60 bg-white/10 backdrop-blur-md px-8 py-4 text-lg font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 text-white shadow-lg"
             >
               <span className="flex items-center">
                 <svg className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,41 +197,8 @@ export function Hero() {
               </span>
             </Button>
           </div>
-
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {[
-              { number: '10K+', label: 'Active Students', icon: '👨‍🎓' },
-              { number: '500+', label: 'Educators', icon: '👩‍🏫' },
-              { number: '95%', label: 'Success Rate', icon: '📈' },
-              { number: '24/7', label: 'AI Support', icon: '🤖' },
-            ].map((stat, index) => (
-              <div 
-                key={index}
-                className="group text-center p-6 rounded-2xl bg-card/20 backdrop-blur-md border border-green-500/30 hover:border-green-400/50 dark:hover:border-green-400/50 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer shadow-lg"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">
-                  {stat.icon}
-                </div>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1 group-hover:text-green-500 dark:group-hover:text-green-300 transition-colors duration-300">
-                  {stat.number}
-                </div>
-                <div className="text-sm text-muted-foreground font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </Container>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce cursor-pointer">
-        <div className="w-6 h-10 border-2 border-green-500/50 rounded-full flex justify-center backdrop-blur-sm bg-card/20">
-          <div className="w-1 h-3 bg-green-500/70 dark:bg-green-400/70 rounded-full mt-2 animate-pulse" />
-        </div>
-      </div>
 
       <style jsx>{`
         @keyframes float {

@@ -2,6 +2,7 @@
 
 import { useState, createContext, useContext, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { MobileFooterNav } from './mobile-footer-nav';
@@ -140,9 +141,13 @@ export function DashboardLayout({ children, sidebar }: DashboardLayoutProps) {
                 </button>
                 
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">E</span>
-                  </div>
+                  <Image 
+                    src="/Logo.png" 
+                    alt="EduPilot Logo" 
+                    width={32} 
+                    height={32}
+                    className="w-8 h-8"
+                  />
                   <span className="font-semibold text-foreground">EduPilot</span>
                 </div>
                 
