@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -10,8 +11,15 @@ export function Navigation() {
       <Container>
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-foreground cursor-pointer">
-              EduPilot
+            <Link href="/" className="flex items-center space-x-2 cursor-pointer">
+              <Image 
+                src="/Logo.png" 
+                alt="EduPilot Logo" 
+                width={32} 
+                height={32}
+                className="w-8 h-8"
+              />
+              <span className="text-xl font-bold text-foreground">EduPilot</span>
             </Link>
           </div>
           

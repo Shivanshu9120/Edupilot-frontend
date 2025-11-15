@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -58,6 +59,15 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-background-secondary to-background-tertiary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Container className="max-w-md">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <Image 
+              src="/Logo.png" 
+              alt="EduPilot Logo" 
+              width={48} 
+              height={48}
+              className="w-12 h-12"
+            />
+          </div>
           <Heading level={1} className="text-3xl font-bold text-foreground mb-2">
             Join EduPilot
           </Heading>
