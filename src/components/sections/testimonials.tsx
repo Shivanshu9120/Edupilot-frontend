@@ -92,7 +92,7 @@ export function Testimonials() {
                   
                   {/* Testimonial Content */}
                   <p className="text-base md:text-lg leading-relaxed text-muted-foreground mb-6 flex-grow italic">
-                    "{testimonial.content}"
+                    &ldquo;{testimonial.content}&rdquo;
                   </p>
                   
                   {/* Divider */}

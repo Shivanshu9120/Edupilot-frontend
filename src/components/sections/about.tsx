@@ -56,7 +56,7 @@ export function About() {
               <div className="group relative pl-6 border-l-2 border-emerald-500/30 hover:border-emerald-500/60 transition-colors duration-300">
                 <div className="absolute -left-[5px] top-2 w-2 h-2 rounded-full bg-emerald-500" />
                 <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
-                  Our AI-powered platform adapts to each student's unique learning style, 
+                  Our AI-powered platform adapts to each student&apos;s unique learning style, 
                   providing tailored content and real-time feedback that accelerates learning 
                   and improves outcomes.
                 </p>
@@ -143,7 +143,7 @@ export function About() {
                   
                   {/* Description */}
                   <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6">
-                    Be part of the educational revolution that's transforming how we learn and teach.
+                    Be part of the educational revolution that&apos;s transforming how we learn and teach.
                   </p>
                   
                   {/* Feature Pills */}
