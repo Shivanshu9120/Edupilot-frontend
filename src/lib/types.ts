@@ -39,18 +39,31 @@ export interface LoginFormData {
 }
 
 export interface SignupFormData {
-  name: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
-  role: 'student' | 'teacher';
+  role: string;
 }
 
 export interface OnboardingData {
+  // Step 1 fields
+  profilePhoto?: File | null;
+  profilePhotoId?: string | null;
+  firstname?: string;
+  lastname?: string;
+  dob?: string;
+  bio?: string;
+  gender?: string;
+  address?: string;
+  // Step 2 fields
   grade?: string;
-  subjects?: string[];
-  learningGoals?: string[];
-  experience?: 'beginner' | 'intermediate' | 'advanced';
+  domain?: string;
+  stream?: string;
+  branch?: string;
+  // Step 3 fields
+  countryCode?: string;
+  mobileNo?: string;
 }
 
 export interface Course {

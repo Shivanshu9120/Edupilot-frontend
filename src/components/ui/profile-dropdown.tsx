@@ -3,10 +3,12 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
+import { useAuth } from '@/lib/auth-context';
 
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -28,7 +30,7 @@ export function ProfileDropdown() {
         className="relative p-2 rounded-lg hover:bg-card/20 text-muted-foreground transition-colors cursor-pointer"
       >
         <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold">
-          S
+          {user?.username?.charAt(0).toUpperCase() || 'U'}
         </div>
       </button>
 
@@ -37,11 +39,11 @@ export function ProfileDropdown() {
           <div className="p-4">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold">
-                S
+                {user?.username?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div>
-                <div className="font-semibold text-card-foreground">Student User</div>
-                <div className="text-sm text-muted-foreground">student@edupilot.com</div>
+                <div className="font-semibold text-card-foreground">{user?.username || 'User'}</div>
+                <div className="text-sm text-muted-foreground">{user?.email || 'user@edupilot.com'}</div>
               </div>
             </div>
             
@@ -82,7 +84,10 @@ export function ProfileDropdown() {
               
               <hr className="border-border my-2" />
               
-              <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-error/10 transition-colors text-left text-error">
+              <button 
+                onClick={logout}
+                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-error/10 transition-colors text-left text-error"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>

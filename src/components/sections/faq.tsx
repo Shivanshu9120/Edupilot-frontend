@@ -1,50 +1,35 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from '@apollo/client/react';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { Heading } from '@/components/ui/heading';
+import { GET_FAQS } from '@/lib/graphql/queries';
 
 interface FAQ {
-  id: number;
-  question: string;
-  answer: string;
+  documentId: string;
+  Question: string;
+  Answer: string;
+  Sequence: number;
 }
 
-const FAQs: FAQ[] = [
-  {
-    id: 1,
-    question: 'What is EduPilot and how does it work?',
-    answer: 'EduPilot is an AI-powered educational platform designed to personalize learning experiences for students. Our platform uses advanced machine learning algorithms to adapt to each student\'s unique learning style, providing tailored content, real-time feedback, and comprehensive analytics. Educators can track student progress, identify learning gaps, and create data-driven lesson plans to improve educational outcomes.',
-  },
-  {
-    id: 2,
-    question: 'How does the AI personalize learning for each student?',
-    answer: 'Our AI analyzes each student\'s learning patterns, performance data, and engagement metrics to create a personalized learning path. It adapts content difficulty, suggests relevant resources, provides instant feedback, and identifies areas that need more attention. The system continuously learns from student interactions to refine and improve the learning experience over time.',
-  },
-  {
-    id: 3,
-    question: 'Is EduPilot suitable for all age groups and subjects?',
-    answer: 'Yes, EduPilot is designed to be flexible and adaptable across different age groups, from elementary to higher education. The platform supports multiple subjects including mathematics, science, languages, social studies, and more. Our AI adapts its teaching style and content presentation based on the student\'s age, grade level, and subject matter to ensure optimal learning outcomes.',
-  },
-  {
-    id: 4,
-    question: 'What kind of analytics and reports are available for educators?',
-    answer: 'EduPilot provides comprehensive analytics including student performance metrics, learning progress tracking, engagement statistics, time-on-task analysis, and predictive insights. Educators can access detailed reports on individual students or entire classes, identify at-risk students early, monitor learning trends, and make informed decisions about curriculum adjustments and intervention strategies.',
-  },
-  {
-    id: 5,
-    question: 'How secure is student data on the EduPilot platform?',
-    answer: 'Data security and privacy are our top priorities. EduPilot complies with FERPA, COPPA, and GDPR regulations. We use enterprise-grade encryption, secure cloud infrastructure, regular security audits, and strict access controls. Student data is never shared with third parties without explicit consent, and we maintain transparent privacy policies. All data is stored securely and can be exported or deleted at any time by authorized users.',
-  },
-];
+interface FaqsData {
+  faqs: FAQ[];
+}
 
 export function FAQ() {
-  const [openId, setOpenId] = useState<number | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const { data, loading, error } = useQuery<FaqsData>(GET_FAQS);
 
-  const toggleFAQ = (id: number) => {
+  const toggleFAQ = (id: string) => {
     setOpenId(openId === id ? null : id);
   };
+
+  // Sort FAQs by Sequence if available
+  const faqs = data?.faqs 
+    ? [...data.faqs].sort((a, b) => (a.Sequence || 0) - (b.Sequence || 0))
+    : [];
 
   return (
     <Section id="faq" className="bg-background relative overflow-hidden">
@@ -81,70 +66,90 @@ export function FAQ() {
           </div>
 
           {/* FAQ Accordion */}
-          <div className="space-y-4">
-            {FAQs.map((faq, index) => (
-              <div
-                key={faq.id}
-                className="group relative"
-                style={{
-                  animation: 'fadeInUp 0.6s ease-out forwards',
-                  animationDelay: `${index * 0.1}s`,
-                  opacity: 0
-                }}
-              >
-                {/* Accordion Item */}
-                <div className="relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl overflow-hidden transition-all duration-500 hover:border-green-500/30 hover:bg-card/80">
-                  {/* Question Button */}
-                  <button
-                    onClick={() => toggleFAQ(faq.id)}
-                    className="w-full px-6 py-5 md:px-8 md:py-6 text-left flex items-center justify-between gap-4 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300"
-                  >
-                    <h3 className="text-lg md:text-xl font-bold text-foreground pr-8">
-                      {faq.question}
-                    </h3>
-                    <div className="flex-shrink-0">
-                      <svg
-                        className={`w-6 h-6 text-green-600 dark:text-green-400 transition-transform duration-300 ${
-                          openId === faq.id ? 'rotate-180' : ''
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </button>
+          {loading && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading FAQs...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="text-center py-12">
+              <p className="text-red-500">Error loading FAQs. Please try again later.</p>
+            </div>
+          )}
+          
+          {!loading && !error && faqs.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No FAQs available at the moment.</p>
+            </div>
+          )}
+          
+          {!loading && !error && faqs.length > 0 && (
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div
+                  key={faq.documentId}
+                  className="group relative"
+                  style={{
+                    animation: 'fadeInUp 0.6s ease-out forwards',
+                    animationDelay: `${index * 0.1}s`,
+                    opacity: 0
+                  }}
+                >
+                  {/* Accordion Item */}
+                  <div className="relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl overflow-hidden transition-all duration-500 hover:border-green-500/30 hover:bg-card/80">
+                    {/* Question Button */}
+                    <button
+                      onClick={() => toggleFAQ(faq.documentId)}
+                      className="w-full px-6 py-5 md:px-8 md:py-6 text-left flex items-center justify-between gap-4 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300"
+                    >
+                      <h3 className="text-lg md:text-xl font-bold text-foreground pr-8">
+                        {faq.Question}
+                      </h3>
+                      <div className="flex-shrink-0">
+                        <svg
+                          className={`w-6 h-6 text-green-600 dark:text-green-400 transition-transform duration-300 ${
+                            openId === faq.documentId ? 'rotate-180' : ''
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
 
-                  {/* Answer Content */}
-                  <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      openId === faq.id ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <div className="px-6 pb-5 md:px-8 md:pb-6 pt-0">
-                      <div className="pl-6 border-l-2 border-green-500/30">
-                        <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
-                          {faq.answer}
-                        </p>
+                    {/* Answer Content */}
+                    <div
+                      className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                        openId === faq.documentId ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      <div className="px-6 pb-5 md:px-8 md:pb-6 pt-0">
+                        <div className="pl-6 border-l-2 border-green-500/30">
+                          <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
+                            {faq.Answer}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Gradient Overlay on Hover */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500/0 via-transparent to-emerald-500/0 opacity-0 group-hover:opacity-100 group-hover:from-green-500/5 group-hover:to-emerald-500/5 transition-all duration-500 pointer-events-none" />
-                  
-                  {/* Glow Effect */}
-                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500 -z-10" />
-                  
-                  {/* Bottom Border Accent */}
-                  <div className={`absolute bottom-0 left-6 right-6 md:left-8 md:right-8 h-px bg-gradient-to-r from-transparent via-green-500/0 to-transparent transition-all duration-500 ${
-                    openId === faq.id ? 'via-green-500/30' : 'group-hover:via-green-500/20'
-                  }`} />
+                    {/* Gradient Overlay on Hover */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500/0 via-transparent to-emerald-500/0 opacity-0 group-hover:opacity-100 group-hover:from-green-500/5 group-hover:to-emerald-500/5 transition-all duration-500 pointer-events-none" />
+                    
+                    {/* Glow Effect */}
+                    <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500 -z-10" />
+                    
+                    {/* Bottom Border Accent */}
+                    <div className={`absolute bottom-0 left-6 right-6 md:left-8 md:right-8 h-px bg-gradient-to-r from-transparent via-green-500/0 to-transparent transition-all duration-500 ${
+                      openId === faq.documentId ? 'via-green-500/30' : 'group-hover:via-green-500/20'
+                    }`} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </Container>
       

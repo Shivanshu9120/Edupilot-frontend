@@ -1,26 +1,42 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@apollo/client/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
 import { SignupFormData } from '@/lib/types';
 import { validateSignupForm } from '@/lib/auth-utils';
+import { CREATE_USER } from '@/lib/graphql/mutations';
+
+const ROLE_OPTIONS = [
+  { value: 'Student', label: 'Student' },
+  { value: 'Teacher', label: 'Teacher' },
+];
+
+// Hardcoded role IDs from database
+const ROLE_IDS: Record<string, number> = {
+  Student: 5,
+  Teacher: 6,
+};
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<SignupFormData>({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student',
+    role: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [createUser, { loading: isLoading }] = useMutation(CREATE_USER);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -41,17 +57,47 @@ export default function SignupPage() {
       return;
     }
 
-    setIsLoading(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Signup data:', formData);
-      // Redirect to onboarding
-    } catch (error) {
+      // Get the numeric role ID based on selected role name
+      const roleId = ROLE_IDS[formData.role];
+      if (!roleId) {
+        setErrors({ role: 'Invalid role selected. Please try again.' });
+        return;
+      }
+
+      const { data } = await createUser({
+        variables: {
+          data: {
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+            confirmed: false,
+            blocked: false,
+            role: roleId,
+          },
+        },
+      });
+
+      if (data?.createUsersPermissionsUser?.data) {
+        // Store user info temporarily (you might want to use a better state management solution)
+        // For now, redirect to login page with a success message
+        router.push('/login?registered=true');
+      }
+    } catch (error: any) {
       console.error('Signup error:', error);
-    } finally {
-      setIsLoading(false);
+      // Handle specific error messages from Strapi
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        const graphQLError = error.graphQLErrors[0];
+        if (graphQLError.message.includes('email')) {
+          setErrors({ email: 'This email is already registered' });
+        } else if (graphQLError.message.includes('username')) {
+          setErrors({ username: 'This username is already taken' });
+        } else {
+          setErrors({ email: graphQLError.message });
+        }
+      } else {
+        setErrors({ email: 'An error occurred. Please try again.' });
+      }
     }
   };
 
@@ -80,13 +126,13 @@ export default function SignupPage() {
                  <CardHeader>
             <form onSubmit={handleSubmit} className="space-y-6">
               <Input
-                label="Full Name"
-                name="name"
+                label="Username"
+                name="username"
                 type="text"
-                value={formData.name}
+                value={formData.username}
                 onChange={handleInputChange}
-                error={errors.name}
-                placeholder="Enter your full name"
+                error={errors.username}
+                placeholder="Enter your username"
                 required
               />
 
@@ -101,23 +147,15 @@ export default function SignupPage() {
                 required
               />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  I am a
-                </label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                >
-                  <option value="student">Student</option>
-                  <option value="teacher">Teacher</option>
-                </select>
-                {errors.role && (
-                  <p className="text-sm text-error">{errors.role}</p>
-                )}
-              </div>
+              <Select
+                label="Role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                error={errors.role}
+                required
+                options={ROLE_OPTIONS}
+              />
 
               <Input
                 label="Password"
