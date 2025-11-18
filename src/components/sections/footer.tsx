@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Image from 'next/image';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
@@ -154,13 +155,17 @@ export function Footer() {
               {/* Copyright */}
               <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
                 <p>&copy; 2024 EduPilot. All rights reserved.</p>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-4">
                   <span className="hidden md:block text-border">•</span>
-                  <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+                  <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
                   <span className="text-border">•</span>
-                  <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+                  <Link href="/terms-conditions" className="hover:text-foreground transition-colors">Terms of Service</Link>
                   <span className="text-border">•</span>
-                  <a href="#" className="hover:text-foreground transition-colors">Cookie Policy</a>
+                  <Link href="/cancellation-refunds" className="hover:text-foreground transition-colors">Cancellation & Refunds</Link>
+                  <span className="text-border">•</span>
+                  <Link href="/shipping" className="hover:text-foreground transition-colors">Shipping</Link>
+                  <span className="text-border">•</span>
+                  <Link href="/contact" className="hover:text-foreground transition-colors">Contact Us</Link>
                 </div>
               </div>
               
