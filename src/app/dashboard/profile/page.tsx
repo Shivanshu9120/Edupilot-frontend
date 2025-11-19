@@ -175,7 +175,20 @@ export default function ProfilePage() {
       }
       
       // Prepare account update data
-      const accountUpdateData: any = {
+      const accountUpdateData: {
+        Firstname: string;
+        Lastname: string;
+        DOB: string | null;
+        Bio: string | null;
+        Gender: string | null;
+        Address: string | null;
+        Grade: string | null;
+        Domain: string | null;
+        Stream: string | null;
+        Branch: string | null;
+        Mobile_No: number | null;
+        Profile_photo?: number;
+      } = {
         Firstname: accountData.Firstname,
         Lastname: accountData.Lastname,
         DOB: accountData.DOB || null,
@@ -251,7 +264,7 @@ export default function ProfilePage() {
       setPreviewImage(null);
       
       setIsEditing(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile. Please try again.');
     }

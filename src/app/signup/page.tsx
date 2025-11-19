@@ -15,6 +15,25 @@ import { SignupFormData } from '@/lib/types';
 import { validateSignupForm } from '@/lib/auth-utils';
 import { CREATE_USER } from '@/lib/graphql/mutations';
 
+interface CreateUserResponse {
+  createUsersPermissionsUser: {
+    data: {
+      documentId: string;
+      username: string;
+      email: string;
+      confirmed: boolean;
+      blocked: boolean;
+      role: {
+        documentId: string;
+        name: string;
+        type: string;
+      };
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
+}
+
 const ROLE_OPTIONS = [
   { value: 'Student', label: 'Student' },
   { value: 'Teacher', label: 'Teacher' },
@@ -36,7 +55,7 @@ export default function SignupPage() {
     role: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
-  const [createUser, { loading: isLoading }] = useMutation(CREATE_USER);
+  const [createUser, { loading: isLoading }] = useMutation<CreateUserResponse>(CREATE_USER);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -83,17 +102,20 @@ export default function SignupPage() {
         // For now, redirect to login page with a success message
         router.push('/login?registered=true');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Signup error:', error);
+      const graphQLError = error && typeof error === 'object' && 'graphQLErrors' in error
+        ? (error as { graphQLErrors?: Array<{ message?: string }> })
+        : null;
       // Handle specific error messages from Strapi
-      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-        const graphQLError = error.graphQLErrors[0];
-        if (graphQLError.message.includes('email')) {
+      if (graphQLError?.graphQLErrors && graphQLError.graphQLErrors.length > 0) {
+        const firstError = graphQLError.graphQLErrors[0];
+        if (firstError.message?.includes('email')) {
           setErrors({ email: 'This email is already registered' });
-        } else if (graphQLError.message.includes('username')) {
+        } else if (firstError.message?.includes('username')) {
           setErrors({ username: 'This username is already taken' });
         } else {
-          setErrors({ email: graphQLError.message });
+          setErrors({ email: firstError.message || 'An error occurred. Please try again.' });
         }
       } else {
         setErrors({ email: 'An error occurred. Please try again.' });

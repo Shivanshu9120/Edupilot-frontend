@@ -13,6 +13,45 @@ import { OnboardingData } from '@/lib/types';
 import { CREATE_ACCOUNT, UPDATE_USER } from '@/lib/graphql/mutations';
 import { useAuth } from '@/lib/auth-context';
 
+interface CreateAccountResponse {
+  createAccount: {
+    documentId: string;
+    Profile_photo?: {
+      documentId: string;
+      url: string;
+    } | null;
+    Firstname: string;
+    Lastname: string;
+    DOB?: string;
+    Bio?: string;
+    Gender?: string;
+    Address?: string;
+    Grade?: string;
+    Domain?: string;
+    Stream?: string;
+    Branch?: string;
+    Mobile_No?: number;
+    users_permissions_user?: {
+      documentId: string;
+      username: string;
+      email: string;
+    };
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+interface UpdateUserResponse {
+  updateUsersPermissionsUser: {
+    data: {
+      documentId: string;
+      username: string;
+      email: string;
+      is_onboarded: boolean;
+    };
+  };
+}
+
 const GRADES = [
   'Kindergarten',
   'First-Grade',
@@ -75,8 +114,8 @@ const COUNTRY_CODES = [
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isAuthenticated, login: authLogin } = useAuth();
-  const [createAccount, { loading: isCreating }] = useMutation(CREATE_ACCOUNT);
-  const [updateUser, { loading: isUpdating }] = useMutation(UPDATE_USER);
+  const [createAccount, { loading: isCreating }] = useMutation<CreateAccountResponse>(CREATE_ACCOUNT);
+  const [updateUser, { loading: isUpdating }] = useMutation<UpdateUserResponse>(UPDATE_USER);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<Partial<Record<keyof OnboardingData, string>>>({});
   const [data, setData] = useState<OnboardingData>({
@@ -263,20 +302,34 @@ export default function OnboardingPage() {
 
         // Prepare account data
         // Normalize grade value to match Strapi enum
-        let gradeValue = data.grade;
+        let gradeValue = data.grade || '';
         if (gradeValue === 'Graduate') {
           gradeValue = 'Graduation';
         } else if (gradeValue === 'Post-Graduate') {
           gradeValue = 'Post-Graduation';
         }
 
-        const accountData: any = {
-          Firstname: data.firstname,
-          Lastname: data.lastname,
-          DOB: data.dob,
+        const accountData: {
+          Firstname: string;
+          Lastname: string;
+          DOB: string;
+          Bio: string;
+          Gender: string;
+          Address: string;
+          Grade: string;
+          Mobile_No: number;
+          users_permissions_user: string;
+          Profile_photo?: number;
+          Domain?: string;
+          Stream?: string;
+          Branch?: string;
+        } = {
+          Firstname: data.firstname || '',
+          Lastname: data.lastname || '',
+          DOB: data.dob || '',
           Bio: data.bio || '',
-          Gender: data.gender,
-          Address: data.address,
+          Gender: data.gender || '',
+          Address: data.address || '',
           Grade: gradeValue,
           Mobile_No: parseInt(data.mobileNo?.replace(/\s+/g, '') || '0'),
           users_permissions_user: user.documentId,
@@ -358,11 +411,14 @@ export default function OnboardingPage() {
             router.push('/dashboard');
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error completing onboarding:', error);
-        if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-          const graphQLError = error.graphQLErrors[0];
-          alert(`Failed to complete onboarding: ${graphQLError.message}`);
+        const graphQLError = error && typeof error === 'object' && 'graphQLErrors' in error
+          ? (error as { graphQLErrors?: Array<{ message?: string }> })
+          : null;
+        if (graphQLError?.graphQLErrors && graphQLError.graphQLErrors.length > 0) {
+          const firstError = graphQLError.graphQLErrors[0];
+          alert(`Failed to complete onboarding: ${firstError.message}`);
         } else {
           alert('Failed to complete onboarding. Please try again.');
         }

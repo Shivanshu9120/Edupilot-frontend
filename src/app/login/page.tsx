@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@apollo/client/react';
 import Link from 'next/link';
@@ -16,7 +16,25 @@ import { validateLoginForm } from '@/lib/auth-utils';
 import { LOGIN } from '@/lib/graphql/mutations';
 import { useAuth } from '@/lib/auth-context';
 
-export default function LoginPage() {
+interface LoginResponse {
+  login: {
+    jwt: string;
+    user: {
+      documentId: string;
+      username: string;
+      email: string;
+      confirmed: boolean;
+      blocked: boolean;
+      role: {
+        id: number;
+        name: string;
+        type: string;
+      };
+    };
+  };
+}
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login: authLogin, isAuthenticated, user } = useAuth();
@@ -26,7 +44,7 @@ export default function LoginPage() {
   });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
-  const [loginMutation, { loading: isLoading }] = useMutation(LOGIN);
+  const [loginMutation, { loading: isLoading }] = useMutation<LoginResponse>(LOGIN);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -139,11 +157,14 @@ export default function LoginPage() {
           router.push('/onboarding');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-        const graphQLError = error.graphQLErrors[0];
-        setErrors({ email: graphQLError.message || 'Invalid credentials. Please try again.' });
+      const graphQLError = error && typeof error === 'object' && 'graphQLErrors' in error
+        ? (error as { graphQLErrors?: Array<{ message?: string }> })
+        : null;
+      if (graphQLError?.graphQLErrors && graphQLError.graphQLErrors.length > 0) {
+        const firstError = graphQLError.graphQLErrors[0];
+        setErrors({ email: firstError.message || 'Invalid credentials. Please try again.' });
       } else {
         setErrors({ email: 'An error occurred. Please try again.' });
       }
@@ -303,5 +324,20 @@ export default function LoginPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-background-secondary to-background-tertiary flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

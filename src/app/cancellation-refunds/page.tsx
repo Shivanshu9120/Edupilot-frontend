@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Navigation } from '@/components/layout/navigation';
 import { Footer } from '@/components/sections/footer';
 import { Container } from '@/components/ui/container';
