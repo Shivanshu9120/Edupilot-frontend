@@ -61,10 +61,10 @@ export function validateSignupForm(data: SignupFormData): {
 } {
   const errors: Partial<Record<keyof SignupFormData, string>> = {};
   
-  if (!data.name) {
-    errors.name = 'Name is required';
-  } else if (data.name.length < 2) {
-    errors.name = 'Name must be at least 2 characters long';
+  if (!data.username) {
+    errors.username = 'Username is required';
+  } else if (data.username.length < 2) {
+    errors.username = 'Username must be at least 2 characters long';
   }
   
   if (!data.email) {
@@ -89,7 +89,7 @@ export function validateSignupForm(data: SignupFormData): {
   }
   
   if (!data.role) {
-    errors.role = 'Please select your role';
+    errors.role = 'Please select a role';
   }
   
   return {

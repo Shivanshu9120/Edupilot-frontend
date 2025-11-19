@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMutation } from '@apollo/client/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -8,16 +10,37 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
+import { Toast } from '@/components/ui/toast';
 import { LoginFormData } from '@/lib/types';
 import { validateLoginForm } from '@/lib/auth-utils';
+import { LOGIN } from '@/lib/graphql/mutations';
+import { useAuth } from '@/lib/auth-context';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login: authLogin, isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
+  const [loginMutation, { loading: isLoading }] = useMutation(LOGIN);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.is_onboarded) {
+        router.push('/dashboard');
+      } else {
+        router.push('/onboarding');
+      }
+    }
+  }, [isAuthenticated, user, router]);
+
+  // Show success message if redirected from signup
+  const registered = searchParams.get('registered');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,17 +61,92 @@ export default function LoginPage() {
       return;
     }
 
-    setIsLoading(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Login data:', formData);
-      // Redirect to dashboard or onboarding
-    } catch (error) {
+      // Determine if input is email or username
+      const identifier = formData.email.includes('@') 
+        ? formData.email 
+        : formData.email; // Strapi accepts both email and username in the identifier field
+
+      const { data } = await loginMutation({
+        variables: {
+          input: {
+            identifier: identifier,
+            password: formData.password,
+          },
+        },
+      });
+
+      if (data?.login) {
+        const { jwt, user } = data.login;
+        
+        // Check if user is blocked
+        if (user.blocked) {
+          setErrors({ email: 'Your account has been blocked. Please contact support.' });
+          return;
+        }
+
+        // Check if user is confirmed
+        if (!user.confirmed) {
+          setToast({
+            message: 'Please confirm your email before logging in. Check your inbox for the confirmation link.',
+            type: 'warning',
+          });
+          return;
+        }
+
+        // Store auth state (without is_onboarded for now)
+        authLogin(jwt, user);
+
+        // Get is_onboarded field using REST API (GraphQL doesn't return it in login response)
+        try {
+          const restResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/users?filters[documentId][$eq]=${user.documentId}`,
+            {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${jwt}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (restResponse.ok) {
+            const restData = await restResponse.json();
+            // Strapi REST API returns data in { data: [...] } format
+            const userData = restData?.data?.[0] || restData?.[0];
+            const isOnboarded = userData?.is_onboarded || false;
+            
+            // Update auth context with is_onboarded
+            const updatedUser = {
+              ...user,
+              is_onboarded: isOnboarded,
+            };
+            authLogin(jwt, updatedUser);
+
+            // Navigate based on is_onboarded status
+            if (isOnboarded) {
+              router.push('/dashboard');
+            } else {
+              router.push('/onboarding');
+            }
+          } else {
+            // If REST API fails, navigate to onboarding as fallback
+            router.push('/onboarding');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          // If query fails, navigate to onboarding as fallback
+          router.push('/onboarding');
+        }
+      }
+    } catch (error: any) {
       console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        const graphQLError = error.graphQLErrors[0];
+        setErrors({ email: graphQLError.message || 'Invalid credentials. Please try again.' });
+      } else {
+        setErrors({ email: 'An error occurred. Please try again.' });
+      }
     }
   };
 
@@ -71,19 +169,26 @@ export default function LoginPage() {
           <p className="text-muted-foreground">
             Sign in to your EduPilot account
           </p>
+          {registered && (
+            <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <p className="text-sm text-green-600 dark:text-green-400">
+                Account created successfully! Please log in.
+              </p>
+            </div>
+          )}
         </div>
 
                <Card className="border-green-500/30 bg-card/20 backdrop-blur-md shadow-lg">
                  <CardHeader>
             <form onSubmit={handleSubmit} className="space-y-6">
               <Input
-                label="Email Address"
+                label="Email or Username"
                 name="email"
-                type="email"
+                type="text"
                 value={formData.email}
                 onChange={handleInputChange}
                 error={errors.email}
-                placeholder="Enter your email"
+                placeholder="Enter your email or username"
                 required
               />
 
@@ -189,6 +294,14 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </Container>
+      
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
